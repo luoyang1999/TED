@@ -54,18 +54,46 @@ You need creat a 'velodyne_depth' dataset to run our multimodal detector:
 You can download our preprocessed data [here (13GB)](https://drive.google.com/file/d/1xki9v_zsQMM8vMVNo0ENi1Mh_GNMjHUg/view?usp=sharing), or generate the data by yourself:
 * [Install this project](#installation).
 * Download the PENet depth completion model [here (500M)](https://drive.google.com/file/d/1RDdKlKJcas-G5OA49x8OoqcUDiYYZgeM/view?usp=sharing) and put it into ```tools/PENet```.
-* Then run the following code to generate RGB pseudo points.
+* Then run the following code to generate RGB pseudo points. Create dir velodyne_depth
 ```
 cd tools/PENet
 python3 main.py --detpath [your path like: ../../data/kitti/training]
 ```
 
+example data
+
+python3 main.py --detpath /data/dataset/dair_v2x/cooperative-vehicle-infrastructure-example/infrastructure-side/training
+python3 main.py --detpath /data/dataset/dair_v2x/cooperative-vehicle-infrastructure-example/vehicle-side/training
+
+full data
+python3 main.py --detpath /data/dataset/dair_v2x/cooperative-vehicle-infrastructure/infrastructure-side/training
+python3 main.py --detpath /data/dataset/dair_v2x/cooperative-vehicle-infrastructure/vehicle-side/training
+
 After 'velodyne_depth' generation, run following command to creat dataset infos:
 ```
 cd ../..
-python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos  tools/cfgs/dataset_configs/kitti_dataset.yaml
 python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml
 ```
+
+dair-example
+infrastructure-side
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_example_coop_inf_dataset.yaml
+python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_example_coop_inf_dataset.yaml
+
+vehicle-side
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_example_coop_veh_dataset.yaml
+python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_example_coop_veh_dataset.yaml
+
+dair-full
+infrastructure-side
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_inf_dataset.yaml
+python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_inf_dataset.yaml
+
+vehicle-side
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_veh_dataset.yaml
+python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_veh_dataset.yaml
+
 
 Anyway, the data structure should be: 
 ```
