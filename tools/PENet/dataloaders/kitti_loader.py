@@ -369,7 +369,7 @@ class KittiDepth(data.Dataset):
         return rgb, sparse, target
 
     def __getitem__(self, index):
-        rgb, sparse = self.my_loader[index]
+        rgb, sparse, file_idx = self.my_loader[index]
 
         target = None
         position = CoordConv.AddCoordsNp(self.args.val_h, self.args.val_w)
@@ -387,7 +387,7 @@ class KittiDepth(data.Dataset):
             for key, val in candidates.items() if val is not None
         }
 
-        return items
+        return items, file_idx
 
     def __len__(self):
         return len(self.my_loader)

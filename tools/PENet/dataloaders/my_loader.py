@@ -248,7 +248,14 @@ def la_sampling2(points, vert_res=0.002, hor_res=0.002):
         arg_min = np.argmin(np.array(voxel[:pt_n, 10]))
         finals.append(voxel[arg_min])
     finals = np.array(finals)
-    return np.concatenate([finals[:, 8:11], finals[:, 3:8]],-1)
+
+    res = np.concatenate([finals[:, 8:11], finals[:, 3:8]],-1)
+    # try:
+    #     res = np.concatenate([finals[:, 8:11], finals[:, 3:8]],-1)
+    # except:
+    #     print(finals.shape)
+    #     # exit()
+    return res
 
 
 def voxel_sampling(point2, res_x=0.05, res_y=0.05, res_z = 0.05):
@@ -421,6 +428,7 @@ class MyLoader():
     def __init__(self, root_path=''):
         self.root_path = root_path
         self.file_list = self.include_all_files()
+        print(self.file_list)
 
     def include_all_files(self):
         velo_path = os.path.join(self.root_path, 'velodyne')
@@ -436,15 +444,17 @@ class MyLoader():
 
     def __getitem__(self, item):
         file_idx = self.file_list[item]
-        file_image_path = os.path.join(self.root_path, 'image_2', file_idx+'.png')
+
+        file_image_path = os.path.join(self.root_path, 'image_2', file_idx+'.jpg')  # fix to jpg
+
         file_velo_path = os.path.join(self.root_path, 'velodyne', file_idx+'.bin')
         file_calib = os.path.join(self.root_path, 'calib', file_idx+'.txt')
 
         calib = calibration_kitti.Calibration(file_calib)
         points = np.fromfile(str(file_velo_path), dtype=np.float32).reshape(-1, 4)
         image = np.array(io.imread(file_image_path), dtype=np.int32)
-        image = image[:352, :1216]
+        image = image[:352, :1216]  # 直接给截取了，有点奇怪
 
         rgb, depth = load_depth_input(calib, image, points)
 
-        return rgb, depth
+        return rgb, depth, file_idx

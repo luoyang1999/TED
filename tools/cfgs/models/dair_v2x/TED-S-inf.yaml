@@ -1,9 +1,8 @@
 CLASS_NAMES: ['Car']
 
 DATA_CONFIG:
-    _BASE_CONFIG_: cfgs/dataset_configs/kitti_dataset.yaml
-    DATASET: 'KittiDatasetMM'
-    MM_PATH: 'velodyne_depth'
+    _BASE_CONFIG_: cfgs/dataset_configs/dair_v2x_coop_inf_dataset.yaml
+    DATASET: 'KittiDataset'
     ROT_NUM: 3
     USE_VAN: True
 
@@ -23,14 +22,14 @@ DATA_CONFIG:
             - NAME: gt_sampling
               USE_ROAD_PLANE: True
               DB_INFO_PATH:
-                  - kitti_dbinfos_train_mm.pkl
+                  - kitti_dbinfos_train.pkl
               PREPARE: {
                   filter_by_min_points: ['Car:5', 'Pedestrian:5', 'Cyclist:5'],
                   filter_by_difficulty: [-1],
               }
 
               SAMPLE_GROUPS: ['Car:10', 'Pedestrian:10', 'Cyclist:10']
-              NUM_POINT_FEATURES: 8
+              NUM_POINT_FEATURES: 4
               DATABASE_WITH_FAKELIDAR: False
               REMOVE_EXTRA_WIDTH: [0.0, 0.0, -0.2]
               LIMIT_WHOLE_SCENE: False
@@ -38,7 +37,7 @@ DATA_CONFIG:
             - NAME: da_sampling
               USE_ROAD_PLANE: True
               DB_INFO_PATH:
-                - kitti_dbinfos_train_mm.pkl
+                - kitti_dbinfos_train.pkl
               PREPARE: {
                 filter_by_min_points: ['Car:5'],
                 filter_by_difficulty: [-1],
@@ -54,7 +53,7 @@ DATA_CONFIG:
               VERT_RES: 0.006
               HOR_RES: 0.003
 
-              NUM_POINT_FEATURES: 8
+              NUM_POINT_FEATURES: 4
               DATABASE_WITH_FAKELIDAR: False
               REMOVE_EXTRA_WIDTH: [0.0, 0.0, -0.2]
               LIMIT_WHOLE_SCENE: False
@@ -88,11 +87,12 @@ DATA_CONFIG:
           WORLD_SCALE_RANGE: [ 0.98, 1.02, 1., 0.98, 1.02, 1.]
 
 
+
     POINT_FEATURE_ENCODING: {
         encoding_type: absolute_coordinates_encoding_mm,
         used_feature_list: ['x', 'y', 'z', 'intensity'],
         src_feature_list: ['x', 'y', 'z', 'intensity'],
-        num_features: 8
+        num_features: 4
     }
 
     DATA_PROCESSOR:
@@ -106,7 +106,7 @@ DATA_CONFIG:
           }
 
         - NAME: transform_points_to_voxels
-          VOXEL_SIZE: [0.05, 0.05, 0.05]
+          VOXEL_SIZE: [0.05, 0.05, 0.05]  
           MAX_POINTS_PER_VOXEL: 5
           MAX_NUMBER_OF_VOXELS: {
             'train': 16000,
@@ -121,17 +121,15 @@ MODEL:
         MODEL: 'max'
 
     BACKBONE_3D:
-        NAME: TeMMVoxelBackBone8x
+        NAME: TeVoxelBackBone8x
         NUM_FILTERS: [16, 32, 64, 64]
         RETURN_NUM_FEATURES_AS_DICT: True
         OUT_FEATURES: 64
-        MM: True
 
     MAP_TO_BEV:
         NAME: BEVPool
         NUM_BEV_FEATURES: 256
         ALIGN_METHOD: 'max'
-
 
     BACKBONE_2D:
         NAME: BaseBEVBackbone
@@ -181,19 +179,13 @@ MODEL:
 
 
     ROI_HEAD:
-        NAME: TEDMHead
+        NAME: TEDSHead
         CLASS_AGNOSTIC: True
 
         SHARED_FC: [256, 256]
         CLS_FC: [256, 256]
         REG_FC: [256, 256]
         DP_RATIO: 0.01
-
-        PART:
-          IN_CHANNEL: 256
-          SIZE: 7
-          GRID_OFFSETS: [0., 40.]
-          FEATMAP_STRIDE: 0.4
 
         NMS_CONFIG:
             TRAIN:
@@ -215,24 +207,6 @@ MODEL:
             FEATURES_SOURCE: ['x_conv3','x_conv4']
             PRE_MLP: True
             GRID_SIZE: 6
-            POOL_LAYERS:
-                x_conv3:
-                    MLPS: [[32, 32], [32, 32]]
-                    QUERY_RANGES: [[2, 2, 2], [4, 4, 4]]
-                    POOL_RADIUS: [0.4, 0.8]
-                    NSAMPLE: [16, 16]
-                    POOL_METHOD: max_pool
-                x_conv4:
-                    MLPS: [[32, 32], [32, 32]]
-                    QUERY_RANGES: [[2, 2, 2], [4, 4, 4]]
-                    POOL_RADIUS: [0.8, 1.6]
-                    NSAMPLE: [16, 16]
-                    POOL_METHOD: max_pool
-
-        ROI_GRID_POOL_MM:
-            FEATURES_SOURCE: ['x_conv3','x_conv4']
-            PRE_MLP: True
-            GRID_SIZE: 4
             POOL_LAYERS:
                 x_conv3:
                     MLPS: [[32, 32], [32, 32]]
@@ -279,7 +253,7 @@ MODEL:
 
     POST_PROCESSING:
         RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
-        SCORE_THRESH: 0.7
+        SCORE_THRESH: 0.25
         OUTPUT_RAW_SCORE: False
         EVAL_METRIC: kitti
 
@@ -293,7 +267,7 @@ MODEL:
 
 OPTIMIZATION:
     BATCH_SIZE_PER_GPU: 1
-    NUM_EPOCHS: 30
+    NUM_EPOCHS: 40
 
     OPTIMIZER: adam_onecycle
     LR: 0.01

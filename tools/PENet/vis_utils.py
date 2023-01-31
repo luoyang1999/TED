@@ -126,9 +126,17 @@ def get_fov_flag(pts_rect, img_shape, calib):
 def save_depth_as_points(depth, idx, root_path):
 
     file_idx = str(idx).zfill(6)
-    file_image_path = os.path.join(root_path, 'image_2', file_idx + '.png')
+
+    file_image_path = os.path.join(root_path, 'image_2', file_idx + '.jpg') # fix png to jpg
     file_velo_path = os.path.join(root_path, 'velodyne', file_idx + '.bin')
     file_calib = os.path.join(root_path, 'calib', file_idx + '.txt')
+
+    # 由于转换的序号不是连续的，可能有些不存在, 目前已经改掉这个问题
+    if not os.path.exists(file_calib):
+        print("no exists " + file_calib)
+        return 
+    else:
+        print("exists " + file_calib)
 
     calib = calibration_kitti.Calibration(file_calib)
 
@@ -139,7 +147,6 @@ def save_depth_as_points(depth, idx, root_path):
     pts_rect = calib.lidar_to_rect(lidar[:, 0:3])
     fov_flag = get_fov_flag(pts_rect, image.shape, calib)
     lidar = lidar[fov_flag]
-
 
     paths = os.path.join(root_path, 'velodyne_depth')
     if not os.path.exists(paths):

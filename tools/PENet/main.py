@@ -195,7 +195,7 @@ def iterate(mode, args, loader, model, optimizer, logger, epoch):
 
     torch.cuda.empty_cache()
 
-    for i, batch_data in enumerate(loader):
+    for i, (batch_data, file_idx) in enumerate(loader):
 
         dstart = time.time()
         batch_data = {
@@ -262,7 +262,7 @@ def iterate(mode, args, loader, model, optimizer, logger, epoch):
 
         if mode == "test_completion":
 
-            vis_utils.save_depth_as_points(pred, i, args.detpath)
+            vis_utils.save_depth_as_points(pred, int(file_idx[0]), args.detpath)
 
         if(not args.evaluate):
             gpu_time = time.time() - start

@@ -1,0 +1,9 @@
+*.o
+*.so
+*.ninja
+*.pyc
+data
+output
+results
+build
+pcdet.egg-info

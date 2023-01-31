@@ -58,19 +58,21 @@ class KittiDataset(DatasetTemplate):
 
         split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
         self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
+        # print(self.sample_id_list)
 
     def get_lidar(self, idx):
         lidar_file = self.root_split_path / 'velodyne' / ('%s.bin' % idx)
-        assert lidar_file.exists()
+        assert lidar_file.exists(), lidar_file
         return np.fromfile(str(lidar_file), dtype=np.float32).reshape(-1, 4)
 
     def get_image_shape(self, idx):
-        img_file = self.root_split_path / 'image_2' / ('%s.png' % idx)
-        assert img_file.exists()
+        img_file = self.root_split_path / 'image_2' / ('%s.jpg' % idx)
+        assert img_file.exists(), img_file
         return np.array(io.imread(img_file).shape[:2], dtype=np.int32)
 
+    # 'label_2_semi'
     def get_label(self, idx):
-        label_file = self.root_split_path / 'label_2_semi' / ('%s.txt' % idx)
+        label_file = self.root_split_path / 'label_2' / ('%s.txt' % idx)
         assert label_file.exists()
         return object3d_kitti.get_objects_from_label(label_file)
 
@@ -441,9 +443,20 @@ if __name__ == '__main__':
         from easydict import EasyDict
         dataset_cfg = EasyDict(yaml.safe_load(open(sys.argv[2])))
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
+
+        data_path = dataset_cfg.DATA_PATH
+        print(data_path)
+
         create_kitti_infos(
             dataset_cfg=dataset_cfg,
             class_names=['Car', 'Pedestrian', 'Cyclist'],
-            data_path=ROOT_DIR / 'data' / 'kitti',
-            save_path=ROOT_DIR / 'data' / 'kitti'
+            data_path=Path(data_path),
+            save_path=Path(data_path)
         )
+
+        # create_kitti_infos(
+        #     dataset_cfg=dataset_cfg,
+        #     class_names=['Car', 'Pedestrian', 'Cyclist'],
+        #     data_path=ROOT_DIR / 'data' / 'kitti',
+        #     save_path=ROOT_DIR / 'data' / 'kitti'
+        # )

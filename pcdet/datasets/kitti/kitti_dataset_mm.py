@@ -69,7 +69,7 @@ class KittiDatasetMM(DatasetTemplate):
 
     def get_lidar_mm(self, idx):
         lidar_file = self.root_split_path / self.dataset_cfg.MM_PATH / ('%s.npy' % idx)
-        assert lidar_file.exists()
+        assert lidar_file.exists(), lidar_file
         return np.load(lidar_file).astype(np.float32)
 
     def get_image_shape(self, idx):
@@ -475,9 +475,13 @@ if __name__ == '__main__':
         from easydict import EasyDict
         dataset_cfg = EasyDict(yaml.safe_load(open(sys.argv[2])))
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
+
+        data_path = dataset_cfg.DATA_PATH
+        print(data_path)
+
         create_kitti_infos(
             dataset_cfg=dataset_cfg,
             class_names=['Car', 'Pedestrian', 'Cyclist'],
-            data_path=ROOT_DIR / 'data' / 'kitti',
-            save_path=ROOT_DIR / 'data' / 'kitti'
+            data_path=Path(data_path),
+            save_path=Path(data_path)
         )

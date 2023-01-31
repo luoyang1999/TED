@@ -49,7 +49,10 @@ def get_calib_from_file(filepath):
                 R0 = np.array(R0[-9:], np.float32)
 
     data2["P2"]=P2.reshape(3, 4)
-    data2["P3"]=P3.reshape(3, 4)
+    if 'P3' in locals().keys():
+        data2["P3"] = P3.reshape(3, 4)
+    else:
+        data2["P3"] = P2.reshape(3, 4) # fix P3
     data2["Tr_velo2cam"]=vtc_mat.reshape(3, 4)
     data2["R0"]=R0.reshape(3, 3)
 
