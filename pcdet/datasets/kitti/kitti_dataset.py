@@ -58,7 +58,7 @@ class KittiDataset(DatasetTemplate):
 
         split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
         self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
-        # print(self.sample_id_list)
+        print(self.split, " len:", len(self.sample_id_list))
 
     def get_lidar(self, idx):
         lidar_file = self.root_split_path / 'velodyne' / ('%s.bin' % idx)
@@ -78,7 +78,7 @@ class KittiDataset(DatasetTemplate):
 
     def get_calib(self, idx):
         calib_file = self.root_split_path / 'calib' / ('%s.txt' % idx)
-        assert calib_file.exists()
+        assert calib_file.exists(), calib_file
         return calibration_kitti.Calibration(calib_file)
 
     def get_road_plane(self, idx):
@@ -395,7 +395,7 @@ class KittiDataset(DatasetTemplate):
         return data_dict
 
 
-def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
+def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=16):
     dataset = KittiDataset(dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path, training=False)
     train_split, val_split = 'train', 'val'
 

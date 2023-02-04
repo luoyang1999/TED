@@ -94,6 +94,9 @@ vehicle-side
 python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_veh_dataset.yaml
 python3 -m pcdet.datasets.kitti.kitti_dataset_mm create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_veh_dataset.yaml
 
+early-fusion
+python3 -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/dair_v2x_coop_early_fusion_dataset.yaml
+
 
 Anyway, the data structure should be: 
 ```

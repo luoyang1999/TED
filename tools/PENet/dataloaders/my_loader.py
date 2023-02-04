@@ -239,7 +239,6 @@ def la_sampling2(points, vert_res=0.002, hor_res=0.002):
     new_points = copy.deepcopy(points)
 
     sp_coords, new_points = to_sphere_coords(new_points)
-
     cat_points = np.concatenate([sp_coords,new_points[:,0:3]],-1)
     voxels, coordinates, num_points = voxel_generator.generate(cat_points)
     finals = []
@@ -396,6 +395,8 @@ def range_sampling_torch(points2, ref_points, calib, pix_dis_x = 4, pix_dis_y = 
     return points2[mask_all.cpu().numpy()]
 
 def depth2pointsrgbp(depth, image, calib, lidar):
+    import pdb
+    pdb.set_trace()
     depth[depth<0.01] = 0
     uv = depth.nonzero()
     depth_val = depth[depth>0]
@@ -406,7 +407,9 @@ def depth2pointsrgbp(depth, image, calib, lidar):
     p_lidar = calib.rect_to_lidar(p_rect)
     new_p[:, 0:3] = p_lidar
     new_p[:, 4:7] = image[uv[0], uv[1]]/3
+    print(new_p[:10, :])
     new_p = new_p[new_p[:, 2] < 1.]
+    print(new_p)
     new_p = la_sampling2(new_p)
     new_p[:, -1] = 1
 
@@ -454,7 +457,5 @@ class MyLoader():
         points = np.fromfile(str(file_velo_path), dtype=np.float32).reshape(-1, 4)
         image = np.array(io.imread(file_image_path), dtype=np.int32)
         image = image[:352, :1216]  # 直接给截取了，有点奇怪
-
         rgb, depth = load_depth_input(calib, image, points)
-
         return rgb, depth, file_idx
